@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title></title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/controllers/listCntrl.js"></script>
+    <script src="js/controllers/quizCntrl.js"></script>
+    <script src="js/quizFactory/quizMetrics.js"></script>
+    <script src="js/quizFactory/dataService.js"></script>
+</head>
+
+<body ng-app="turtleFacts">
+    <div class="container">
+        <div class="page-header">
+            <h1>Quiz</h1>
+            <h3>Learn about all the turtles below before you decide to take on the<strong>Turtle Quiz</strong>
+            </h3>
+        </div>
+        <div ng-controller="listCntrl as cntrl" ng-hide="cntrl.quizMetrics.quizActive">
+            <form class="form-inline well well-sm clearfix">
+                <span class="glyphicon glyphicon-search"></span>
+                <input type="text" placeholder="Search.." class="form-control" ng-model="cntrl.search">
+                <button class="btn btn-warning pull-right" ng-click="cntrl.showViewQuiz()">
+                <strong>Start Quiz</strong>
+            </button>
+            </form>
+            <div class="row">
+                <div class="col-sm-6" ng-repeat="turtle in cntrl.listOfTurtles | filter:cntrl.search">
+                    <div class="well well-sm">
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <img ng-src="{{turtle.image_url}}" alt="" class="img-rounded img-responsive well-image">
+                            </div>
+                            <div class="col-md-6">
+                                <h4>{{turtle.type}}</h4>
+                                <p><strong>Locations :</strong>{{turtle.locations}}</p>
+                                <p><strong>Size :</strong>{{turtle.size}}</p>
+                                <p><strong>Average Lifespan :</strong>{{turtle.lifespan}}</p>
+                                <p><strong>Diet :</strong>{{turtle.diet}}</p>
+                                <button class="btn btn-primary pull-right" data-toggle="modal" data-target="#turtle-info" ng-click="cntrl.changeActiveTurtle(turtle)">Learn More</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="modal" id="turtle-info">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>{{cntrl.activeTurtle.type}}</h2>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-xs-8 col-xs-offset-2">
+                                    <img ng-src="{{cntrl.activeTurtle.image_url}}" class="img-rounded img-responsive well-image">
+                                </div>
+                            </div>
+                            <div class="row" top-buffer>
+                                <div class="col-md-6">
+                                    <p><strong>Locations: </strong>{{cntrl.activeTurtle.locations}}</p>
+                                    <p><strong>Size: </strong>{{cntrl.activeTurtle.size}}</p>
+                                    <p><strong>Average Lifespan: </strong>{{cntrl.activeTurtle.lifespan}}</p>
+                                    <p><strong>Diet: </strong>{{cntrl.activeTurtle.diet}}</p>
+                                </div>
+                                <div class="col-xs-12" top-buffer>
+                                    <p>{{cntrl.activeTurtle.description}}</p>
+                                    <button class="btn btn-danger pull-right" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Quiz View-->
+        <div ng-controller="quizCntrl as cntrl" ng-show="cntrl.quizMetrics.quizActive">
+            <div class="row">
+                <div class="col-xs-8">
+                    <h4>Progress:</h4>
+                    <div class="btn-toolbar">
+                        <button class="btn" ng-repeat="ques in cntrl.dataservice.quizQuestions" ng-class="{'btn-info' : ques.selected !==null, 'btn-danger': ques.selected===null}">
+                                
+                                <span class="glyphicon" ng-class="{'glyphicon-pencil' : ques.selected !==null,'glyphicon-question-sign' : ques.selected ===null}"></span>
+                                </button>
+                    </div>
+                </div>
+                <div class="col-xs-4">
+                    <div class="row">
+                        <h4>Legend :</h4>
+                        <div class="col-sm-4">
+                            <button class="btn btn-info">
+                                      <span class="glyphicon glyphicon-pencil"></span>
+                            
+                            </button>
+                            <p>Answered</p>
+
+                        </div>
+                        <div class="col-sm-4">
+                            <button class="btn btn-danger">
+                                      <span class="glyphicon glyphicon-question-sign"></span>
+                            
+                            </button>
+                            <p>Unanswered</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <h3>Question:</h3>
+                <div class="well well-sm">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h4>{{cntrl.activeQuestion+1+". "+cntrl.dataservice.quizQuestions[cntrl.activeQuestion].text}}</h4>
+                            <div class="row" ng-if="cntrl.dataservice.quizQuestions[cntrl.activeQuestion].type==='text'">
+
+                                <div class="col-sm-6" ng-repeat="option in cntrl.dataservice.quizQuestions[cntrl.activeQuestion].possibilities">
+
+                                    <h4 class="answer"> {{option.answer}}</h4>
+                                </div>
+                            </div>
+                            <div class="row" ng-if="cntrl.dataservice.quizQuestions[cntrl.activeQuestion].type==='image'">
+                                <div class=" col-sm-6 " ng-repeat="option in cntrl.dataservice.quizQuestions[cntrl.activeQuestion].possibilities">
+                                    <div class="image-answer">
+                                        <img ng-src="{{option.answer}} ">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-warning " ng-click="cntrl.questionAnswered() ">Continue</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</body>
+
+</html>
